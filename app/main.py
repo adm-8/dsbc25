@@ -5,7 +5,12 @@ from fastapi.responses import HTMLResponse
 from app.api.evaluation import router as evaluation_router
 from app.api.interview import router as interview_router
 
+from starlette_exporter import PrometheusMiddleware, handle_metrics
+
 app = FastAPI()
+
+app.add_middleware(PrometheusMiddleware)
+app.add_route("/metrics", handle_metrics)
 
 # Инициализируем роутеры для API
 app.include_router(evaluation_router)
