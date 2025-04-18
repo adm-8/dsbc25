@@ -31,6 +31,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_HOST: 'dsbc25-db'
       OPENAI_API_KEY: ${OPENAI_API_KEY}
+      IS_CONTAINER: ${IS_CONTAINER}
     ports:
       - "9999:8000"
     command: >
