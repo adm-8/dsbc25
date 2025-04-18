@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI, Request, Depends
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
@@ -17,15 +19,11 @@ app.include_router(evaluation_router)
 app.include_router(interview_router)
 
 # Templates for frontend
-template_imported = False
+IS_CONTAINER = os.getenv('IS_CONTAINER', False)
 
-try:
+if IS_CONTAINER:
     templates = Jinja2Templates(directory="./frontend")
-    template_imported = True
-finally:
-    pass
-
-if not template_imported:
+else:
     templates = Jinja2Templates(directory="app/frontend")
 
 # Роуты для отображения HTML страницы
