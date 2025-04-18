@@ -39,6 +39,10 @@ async def select_persona_page(request: Request):
 async def interview_page(request: Request):
     return templates.TemplateResponse("interview.html", {"request": request})
 
+@app.get("/onboarding", response_class=HTMLResponse)
+async def interview_page(request: Request):
+    return templates.TemplateResponse("onboarding.html", {"request": request})
+
 @app.get("/evaluation", response_class=HTMLResponse)
 async def evaluation_page(request: Request):
     return templates.TemplateResponse("evaluation.html", {"request": request})
