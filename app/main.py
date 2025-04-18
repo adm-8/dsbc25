@@ -17,6 +17,8 @@ app.include_router(evaluation_router)
 app.include_router(interview_router)
 
 # Templates for frontend
+template_imported = False
+
 try:
     templates = Jinja2Templates(directory="./frontend")
     template_imported = True
