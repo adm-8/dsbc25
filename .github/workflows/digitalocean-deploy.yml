@@ -48,3 +48,35 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ env.IMAGE_TAG_PROD }}
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # copy docker-compose.yml
+      - name: copy docker-compose.yml
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.DROPLET_IP }}
+          username: root
+          password: ${{ secrets.DROPLET_PASSWORD }}
+          source: "docker-compose.yml"
+          target: "/app/"
+
+      # copy nginx config
+      - name: copy nginx config
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.DROPLET_IP }}
+          username: root
+          password: ${{ secrets.DROPLET_PASSWORD }}
+          source: "config/"
+          target: "/app"
+
+      # copy nginx certs
+      - name: copy nginx certs
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.DROPLET_IP }}
+          username: root
+          password: ${{ secrets.DROPLET_PASSWORD }}
+          source: "certs/"
+          target: "/app"
