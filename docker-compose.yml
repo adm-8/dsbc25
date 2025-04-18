@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  dsbc25-db:
+    image: postgres:16
+    container_name: dsbc25-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  dsbc25-app:
+    container_name: dsbc25-app
+    image: adm8/dsbc25-app:prod
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST: 'dsbc25-db'
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    ports:
+      - "9999:8000"
+    command: >
+      sh -c "uvicorn main:app --host 0.0.0.0 --port 8000"
+    depends_on:
+      - dsbc25-db
+
+  nginx:
+    container_name: dsbc25-nginx
+    image: nginx:latest
+    volumes:
+      - ./config/nginx-fastapi.conf:/etc/nginx/conf.d/default.conf
+      - ./certs/:/etc/nginx/ssl/
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - dsbc25-app
+    restart: unless-stopped
+
+volumes:
+ postgres_data:

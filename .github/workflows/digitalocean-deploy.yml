@@ -7,45 +7,44 @@ on:
 permissions:
   contents: read
 
+env:
+  IMAGE_TAG_TEST: adm8/dsbc25-app:test
+  IMAGE_TAG_PROD: adm8/dsbc25-app:prod
+
 jobs:
-  deploy:
+  docker-build-test-push:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
-      # Ставим Python and pip
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.x'
 
-      # Кешируем пакеты pip для ускорения установки зависимостей
-      - name: Cache pip dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
 
-      # copy _deploy.sh
-      - name: copy _deploy.sh
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.DROPLET_IP }}
-          username: root
-          password: ${{ secrets.DROPLET_PASSWORD }}
-          source: "_deploy.sh"
-          target: "/opt/"
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      # application
-      - name: setup app
-        uses: appleboy/ssh-action@v1
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
         with:
-          host: ${{ secrets.DROPLET_IP }}
-          username: root
-          password: ${{ secrets.DROPLET_PASSWORD }}
-          script: |
-            chmod +x /opt/_deploy.sh
-            /opt/_deploy.sh "/opt/interviewee_agent" "https://github.com/${{ github.repository }}.git" "${{ secrets.OPENAI_API_KEY }}"
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and export to Docker
+        uses: docker/build-push-action@v6
+        with:
+          context: ./app
+          load: true
+          tags: ${{ env.IMAGE_TAG_TEST }}
+
+      #      - name: Test
+      #        run: |
+      #          docker run --rm ${{ env.IMAGE_TAG_TEST }} pytest
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: ./app
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ env.IMAGE_TAG_PROD }}
