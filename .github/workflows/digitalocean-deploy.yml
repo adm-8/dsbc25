@@ -83,3 +83,17 @@ jobs:
           password: ${{ secrets.DROPLET_PASSWORD }}
           source: "certs/"
           target: "/app"
+
+      # run application
+      - name: run application
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DROPLET_IP }}
+          username: root
+          password: ${{ secrets.DROPLET_PASSWORD }}
+          script: |
+            cd /app 
+            docker compose --env-file ./.env up -d \
+              --pull always \
+              --force-recreate \
+              --remove-orphans

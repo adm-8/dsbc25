@@ -101,4 +101,6 @@ apt-get install -y --no-install-recommends \
 
 ```
 docker compose --env-file ./.env up -d --force-recreate  --remove-orphans --build
+
+cd /app && docker compose --env-file ./.env up -d --force-recreate --remove-orphans
 ```
