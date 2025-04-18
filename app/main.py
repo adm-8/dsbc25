@@ -12,7 +12,7 @@ app.include_router(evaluation_router)
 app.include_router(interview_router)
 
 # Templates for frontend
-templates = Jinja2Templates(directory="app/frontend")
+templates = Jinja2Templates(directory="./frontend")
 
 # Роуты для отображения HTML страницы
 @app.get("/", response_class=HTMLResponse)
