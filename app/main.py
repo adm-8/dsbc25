@@ -50,3 +50,7 @@ async def evaluation_page(request: Request):
 @app.get("/report", response_class=HTMLResponse)
 async def report_page(request: Request):
     return templates.TemplateResponse("report.html", {"request": request})
+
+@app.get("/statistics", response_class=HTMLResponse)
+async def report_page(request: Request):
+    return templates.TemplateResponse("statistics.html", {"request": request})
